@@ -1,6 +1,9 @@
-module DayOne
-    ( someFunc
-    ) where
+module DayOne(
+  Dial(..),
+  DialRotation(..)
+           ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+
+newtype Dial = CurrentPointedNumber Int
+
+data DialRotation = Left Int | Right Int
