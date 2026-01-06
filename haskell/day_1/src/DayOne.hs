@@ -4,7 +4,8 @@ module DayOne(
   mkDial,
   rotateDial,
   rotationUnit,
-  mkShift
+  mkShift,
+  numOfTimesDialPointsAtZero
            ) where
 
 import Data.Function ((&))
@@ -85,3 +86,11 @@ toCanonicalDialValue = modBy 100 . (modBy 100 . (+) 100)
 
 
 rotateDial rotation (CurrentPointedNumber v) = CurrentPointedNumber currentVal where currentVal = rotation & extractRotationShift & (toCanonicalDialValue . (+ v))
+
+{-
+Takes a collection of rotations, a dial, and returns the number of times that
+the dial points at zero after applying a rotation
+-}
+numOfTimesDialPointsAtZero :: [DialRotation] -> Dial -> Int
+
+numOfTimesDialPointsAtZero rotations d = 0
