@@ -49,11 +49,11 @@ mkShift direction shift = direction <$> rotationUnit shift
 
 filterMaybe :: (a -> Bool) -> Maybe a -> Maybe a
 
-filterMaybe pred m = m >>= (\el -> if pred el then Just el else Nothing)
+filterMaybe p m = m >>= (\el -> if p el then Just el else Nothing)
 
 mkDial :: Int -> Maybe Dial
 
-mkDial = fmap CurrentPointedNumber . filterMaybe (100 >=) . Just
+mkDial = fmap CurrentPointedNumber . filterMaybe (`elem` [0 .. 99]) . Just
 
 {-
 Takes a rotation to apply to a dial, a dial, and returns
@@ -72,7 +72,7 @@ result of applying x mod m
 -}
 modBy :: Int -> Int -> Int
 
-modBy m v = v `mod` m
+modBy = flip mod
 
 {-
 Takes a value pointed to by the dial and canonicalizes the value so it lies in

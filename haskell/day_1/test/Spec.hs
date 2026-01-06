@@ -4,6 +4,9 @@ import DayOne(DialRotation(..), mkDial, rotateDial, mkShift)
 main :: IO ()
 
 main = hspec $ do
+  describe "Creating a dial that does not point to a number in [0, 99]" $ do
+    it "Returns Nothing" $ do
+      mkDial (-1) `shouldBe` Nothing
   describe "Rotating a dial pointing at zero" $ do
     describe "Rotating it by ten units to the right" $ do
       it "Creates a dial which points at ten" $ do
