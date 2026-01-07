@@ -6,7 +6,8 @@ module DayOne(
   rotationUnit,
   mkShift,
   numOfTimesDialPointsAtZero,
-  numOfTimesDialPassesZero
+  numOfTimesDialPassesZero,
+  numOfTimesDialIsShiftedToAndPastZero
            ) where
 
 import Data.Function ((&))
@@ -125,10 +126,12 @@ numOfTimesDialPassesZero :: DialRotation -> Dial -> Int
 
 numOfTimesDialPassesZero rotation dial = numOfRotationsByHundredUnits + leftShiftConsiderationFactor
   where
-    currDialPos = extractRotationShift rotation + extractPointedNumber dial
+    pastDialPos = extractPointedNumber dial
+    currDialPos = extractRotationShift rotation + pastDialPos
     quotBy = flip quot
     numOfRotationsByHundredUnits = (abs . quotBy 100) currDialPos
-    leftShiftConsiderationFactor = if currDialPos <= 0 then 1 else 0
+    isNotPointingAtZero = (0 /=)
+    leftShiftConsiderationFactor = if currDialPos <= 0 && isNotPointingAtZero pastDialPos then 1 else 0
 
 
 instance Read DialRotation where
@@ -138,3 +141,12 @@ instance Read DialRotation where
             _ -> RightShift
   readsPrec _ _ = []
 
+
+{-
+Takes a collection of rotations, a dial, and returns the number of times the dial
+is shifted such that it lands at zero or passes through it when applying the rotations
+-}
+numOfTimesDialIsShiftedToAndPastZero :: [DialRotation] -> Dial -> Int
+
+numOfTimesDialIsShiftedToAndPastZero rotations dial = foldl' updateZeroShiftCount (dial, 0) rotations & snd
+  where updateZeroShiftCount (currDial, currCount) rotation = (rotateDial rotation currDial, numOfTimesDialPassesZero rotation currDial + currCount)

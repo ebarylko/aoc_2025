@@ -1,5 +1,5 @@
 import Test.Hspec
-import DayOne(DialRotation(..), mkDial, rotateDial, mkShift, numOfTimesDialPointsAtZero, numOfTimesDialPassesZero)
+import DayOne(DialRotation(..), mkDial, rotateDial, mkShift, numOfTimesDialPointsAtZero, numOfTimesDialPassesZero, numOfTimesDialIsShiftedToAndPastZero)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Function ((&))
 
@@ -31,10 +31,17 @@ main = hspec $ do
       numOfTimesDialPointsAtZero rotations <$> mkDial 0 `shouldBe` Just 2
 
   describe "Applying a series of rotations to a dial pointing to 50" $ do
+
     it "Points to zero three times in the entire process of applying the rotations" $ do
       let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
 
       numOfTimesDialPointsAtZero rotations <$> mkDial 50 `shouldBe` Just 3
+
+    it "Passes by zero six times in the entire process of applying the rotations" $ do
+      let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
+
+
+      numOfTimesDialIsShiftedToAndPastZero rotations <$> mkDial 50 `shouldBe` Just 6
 
 
   describe "Reading a string representation of a rotation" $ do
@@ -58,5 +65,12 @@ main = hspec $ do
     describe "Applying a rotation of three units to the right" $ do
       it "The dial never passes by zero " $ do
         numOfTimesDialPassesZero <$> mkShift RightShift 3 <*> mkDial 1 `shouldBe` Just 0
+
+  describe "Applying a rotation to a dial pointing at zero" $ do
+    describe "Rotating the dial by five units to the left" $ do
+      it "Does not pass by zero" $ do
+        numOfTimesDialPassesZero <$> mkShift LeftShift 5 <*> mkDial 0 `shouldBe` Just 0
+
+
 
 
