@@ -1,3 +1,4 @@
+{-# LANGUAGE TupleSections #-}
 module DayOne(
   Dial(..),
   DialRotation(..),
@@ -9,6 +10,8 @@ module DayOne(
            ) where
 
 import Data.Function ((&))
+import Data.Maybe (fromJust)
+
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Ord, Show)
 
@@ -35,7 +38,7 @@ newtype Dial = CurrentPointedNumber Int deriving (Show, Eq)
 This type represents how much a dial is to be rotated by and
 in which direction
 -}
-data DialRotation = LeftShift NonNegative | RightShift NonNegative
+data DialRotation = LeftShift NonNegative | RightShift NonNegative deriving (Show, Eq)
 
 {-
 Takes a direction to shift the dial in (left, right), an amount to shift by
@@ -93,4 +96,22 @@ the dial points at zero after applying a rotation
 -}
 numOfTimesDialPointsAtZero :: [DialRotation] -> Dial -> Int
 
-numOfTimesDialPointsAtZero rotations d = 0
+inc :: Num a => a -> a
+
+inc = (+ 1)
+
+numOfTimesDialPointsAtZero rotations d = foldr updateZeroPointerCount (d, 0) rotations & snd
+  where updateZeroPointerCount rotation (currDial, currCount) =
+          let newDial = rotateDial rotation currDial in
+            (newDial, if pointsToZero newDial then inc currCount else currCount)
+
+        extractPointedNumber (CurrentPointedNumber v) = v
+        pointsToZero = (== 0) . extractPointedNumber
+
+
+instance Read DialRotation where
+  readsPrec _ (direction : shift) = [(toDirection direction (read shift & rotationUnit & fromJust), "")]
+    where toDirection d = case d of
+            'L' -> LeftShift
+            _ -> RightShift
+

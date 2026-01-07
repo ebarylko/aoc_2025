@@ -27,6 +27,14 @@ main = hspec $ do
   describe "Rotating a dial pointing to zero by one hundred units twice" $ do
     it "Points at zero twice over the period of applying both rotations" $ do
       let rotations = catMaybes $ replicate 2 $ mkShift RightShift 100
-      numOfTimesDialPointsAtZero rotations <$> mkDial 90 `shouldBe` Just 2
+      numOfTimesDialPointsAtZero rotations <$> mkDial 0 `shouldBe` Just 2
+
+  describe "Reading a string representation of a rotation" $ do
+    describe "Reading a representation of a right shift of thirty units" $ do
+      it "Returns a right shift of thirty units" $ do
+        (Just . read) "R30" `shouldBe` mkShift RightShift 30
+    describe "Reading a representation of a left shift of thirty units" $ do
+      it "Returns a left shift of thirty units" $ do
+        (Just . read) "L30" `shouldBe` mkShift LeftShift 30
 
 
