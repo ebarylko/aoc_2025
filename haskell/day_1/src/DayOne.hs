@@ -96,9 +96,6 @@ the dial points at zero after applying a rotation
 -}
 numOfTimesDialPointsAtZero :: [DialRotation] -> Dial -> Int
 
-inc :: Num a => a -> a
-
-inc = (+ 1)
 
 extractPointedNumber :: Dial -> Int
 
@@ -111,6 +108,9 @@ numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) ro
             (newDial, if pointsToZero newDial then inc currCount else currCount)
 
         pointsToZero = (== 0) . extractPointedNumber
+        inc :: Num a => a -> a
+
+        inc = (+ 1)
 
 {-
 Takes a rotation, a dial, and returns how many times the dial passed
