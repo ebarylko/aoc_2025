@@ -30,7 +30,7 @@ main = hspec $ do
       let rotations = catMaybes $ replicate 2 $ mkShift RightShift 100
       numOfTimesDialPointsAtZero rotations <$> mkDial 0 `shouldBe` Just 2
 
-  describe "Applying a series of rotations to a dial pointing to 50" $ do
+  describe "Applying a small series of rotations to a dial pointing to 50" $ do
 
     it "Points to zero three times in the entire process of applying the rotations" $ do
       let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
@@ -53,10 +53,17 @@ main = hspec $ do
         (Just . read) "L30" `shouldBe` mkShift LeftShift 30
 
   describe "Applying a large series of rotations to a dial pointing at 50" $ do
-    it "Points to zero n times" $ do
-      let rotations = readFile "data/data.txt" & fmap (map read. lines)
+    describe "Counting the number of times zero it pointed to " $ do
+      it "Is pointed at 1129 times" $ do
+        let rotations = readFile "data/data.txt" & fmap (map read . lines)
 
-      numOfTimesDialPointsAtZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 1129
+        numOfTimesDialPointsAtZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 1129
+
+    describe "Counting the number of times zero is passed by and pointed to" $ do
+      it "Is shifted to/by 6638 times" $ do
+        let rotations = readFile "data/data.txt" & fmap (map read . lines)
+
+        numOfTimesDialIsShiftedToAndPastZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 6638
 
   describe "Applying a rotation to a dial pointing at 1" $ do
     describe "Applying a rotation of one hundred and one units to the left" $ do
