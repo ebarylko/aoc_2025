@@ -29,6 +29,15 @@ main = hspec $ do
       let rotations = catMaybes $ replicate 2 $ mkShift RightShift 100
       numOfTimesDialPointsAtZero rotations <$> mkDial 0 `shouldBe` Just 2
 
+  describe "Applying a series of rotations to a dial pointing to 50" $ do
+    it "Points to zero three times in the entire process of applying the rotations" $ do
+      let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
+
+
+      numOfTimesDialPointsAtZero rotations <$> mkDial 50 `shouldBe` Just 3
+
+
+
   describe "Reading a string representation of a rotation" $ do
     describe "Reading a representation of a right shift of thirty units" $ do
       it "Returns a right shift of thirty units" $ do

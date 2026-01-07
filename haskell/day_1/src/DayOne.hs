@@ -1,4 +1,3 @@
-{-# LANGUAGE TupleSections #-}
 module DayOne(
   Dial(..),
   DialRotation(..),
@@ -11,7 +10,6 @@ module DayOne(
 
 import Data.Function ((&))
 import Data.Maybe (fromJust)
-
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Ord, Show)
 
@@ -100,8 +98,8 @@ inc :: Num a => a -> a
 
 inc = (+ 1)
 
-numOfTimesDialPointsAtZero rotations d = foldr updateZeroPointerCount (d, 0) rotations & snd
-  where updateZeroPointerCount rotation (currDial, currCount) =
+numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) rotations & snd
+  where updateZeroPointerCount (currDial, currCount) rotation  =
           let newDial = rotateDial rotation currDial in
             (newDial, if pointsToZero newDial then inc currCount else currCount)
 
@@ -114,4 +112,5 @@ instance Read DialRotation where
     where toDirection d = case d of
             'L' -> LeftShift
             _ -> RightShift
+  readsPrec _ _ = []
 
