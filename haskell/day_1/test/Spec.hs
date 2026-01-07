@@ -1,6 +1,7 @@
 import Test.Hspec
 import DayOne(DialRotation(..), mkDial, rotateDial, mkShift, numOfTimesDialPointsAtZero)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromJust)
+import Data.Function ((&))
 
 
 main :: IO ()
@@ -33,9 +34,7 @@ main = hspec $ do
     it "Points to zero three times in the entire process of applying the rotations" $ do
       let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
 
-
       numOfTimesDialPointsAtZero rotations <$> mkDial 50 `shouldBe` Just 3
-
 
 
   describe "Reading a string representation of a rotation" $ do
@@ -45,5 +44,11 @@ main = hspec $ do
     describe "Reading a representation of a left shift of thirty units" $ do
       it "Returns a left shift of thirty units" $ do
         (Just . read) "L30" `shouldBe` mkShift LeftShift 30
+
+  describe "Applying a large series of rotations to a dial pointing at 50" $ do
+    it "Points to zero n times" $ do
+      let rotations = readFile "data/data.txt" & fmap (map read. lines)
+
+      numOfTimesDialPointsAtZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 1129
 
 
