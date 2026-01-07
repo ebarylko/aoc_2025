@@ -51,8 +51,12 @@ main = hspec $ do
 
       numOfTimesDialPointsAtZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 1129
 
-  describe "Applying a rotation of three hundred degrees to the right on a dial pointing at 0" $ do
-    it "The dial passes by zero three times" $ do
-      numOfTimesDialPassesZero <$> mkShift RightShift 300 <*> mkDial 0 `shouldBe` Just 3
+  describe "Applying a rotation to a dial pointing at 1" $ do
+    describe "Applying a rotation of one hundred and one units to the left" $ do
+      it "The dial passes by zero two times" $ do
+        numOfTimesDialPassesZero <$> mkShift LeftShift 101 <*> mkDial 1 `shouldBe` Just 2
+    describe "Applying a rotation of three units to the right" $ do
+      it "The dial never passes by zero " $ do
+        numOfTimesDialPassesZero <$> mkShift RightShift 3 <*> mkDial 1 `shouldBe` Just 0
 
 

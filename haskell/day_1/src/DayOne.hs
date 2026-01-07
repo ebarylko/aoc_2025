@@ -99,12 +99,16 @@ inc :: Num a => a -> a
 
 inc = (+ 1)
 
+extractPointedNumber :: Dial -> Int
+
+extractPointedNumber (CurrentPointedNumber v) = v
+
+
 numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) rotations & snd
   where updateZeroPointerCount (currDial, currCount) rotation  =
           let newDial = rotateDial rotation currDial in
             (newDial, if pointsToZero newDial then inc currCount else currCount)
 
-        extractPointedNumber (CurrentPointedNumber v) = v
         pointsToZero = (== 0) . extractPointedNumber
 
 {-
@@ -113,7 +117,18 @@ through zero during the application of the rotation
 -}
 numOfTimesDialPassesZero :: DialRotation -> Dial -> Int
 
-numOfTimesDialPassesZero _ _ = 0
+-- {-
+-- Takes a predicate, a number, and increments the number if it
+-- satisfies the predicate. Returns the same number otherwise
+-- -}
+-- incIf :: Num a => (a -> bool) -> a -> a
+
+numOfTimesDialPassesZero rotation dial = numOfRotationsByHundredUnits + leftShiftConsiderationFactor
+  where
+    currDialPos = extractRotationShift rotation + extractPointedNumber dial
+    quotBy = flip quot
+    numOfRotationsByHundredUnits = (abs . quotBy 100) currDialPos
+    leftShiftConsiderationFactor = if currDialPos <= 0 then 1 else 0
 
 
 instance Read DialRotation where
