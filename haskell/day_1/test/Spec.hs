@@ -1,5 +1,5 @@
 import Test.Hspec
-import DayOne(DialRotation(..), mkDial, rotateDial, mkShift, numOfTimesDialPointsAtZero)
+import DayOne(DialRotation(..), mkDial, rotateDial, mkShift, numOfTimesDialPointsAtZero, numOfTimesDialPassesZero)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Function ((&))
 
@@ -50,5 +50,9 @@ main = hspec $ do
       let rotations = readFile "data/data.txt" & fmap (map read. lines)
 
       numOfTimesDialPointsAtZero <$> rotations <*> (pure . fromJust . mkDial) 50 `shouldReturn` 1129
+
+  describe "Applying a rotation of three hundred degrees to the right on a dial pointing at 0" $ do
+    it "The dial passes by zero three times" $ do
+      numOfTimesDialPassesZero <$> mkShift RightShift 300 <*> mkDial 0 `shouldBe` Just 3
 
 

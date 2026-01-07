@@ -5,7 +5,8 @@ module DayOne(
   rotateDial,
   rotationUnit,
   mkShift,
-  numOfTimesDialPointsAtZero
+  numOfTimesDialPointsAtZero,
+  numOfTimesDialPassesZero
            ) where
 
 import Data.Function ((&))
@@ -105,6 +106,14 @@ numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) ro
 
         extractPointedNumber (CurrentPointedNumber v) = v
         pointsToZero = (== 0) . extractPointedNumber
+
+{-
+Takes a rotation, a dial, and returns how many times the dial passed
+through zero during the application of the rotation
+-}
+numOfTimesDialPassesZero :: DialRotation -> Dial -> Int
+
+numOfTimesDialPassesZero _ _ = 0
 
 
 instance Read DialRotation where
