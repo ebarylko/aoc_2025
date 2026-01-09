@@ -12,6 +12,7 @@ module DayOne(
 
 import Data.Function ((&))
 import Data.Maybe (fromJust)
+import Control.Monad (mfilter)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Ord, Show)
 
@@ -26,7 +27,7 @@ rotation in a direction if n is non-negative. Returns Nothing otherwise.
 
 rotationUnit :: Int -> Maybe NonNegative
 
-rotationUnit num = Just num & filterMaybe isNonNegative & fmap NonNegative where isNonNegative = (0 <=)
+rotationUnit num = NonNegative <$> filterMaybe (>=0) (Just num)
 
 {-
 This type represents a dial containing the
@@ -53,7 +54,7 @@ mkShift direction shift = direction <$> rotationUnit shift
 
 filterMaybe :: (a -> Bool) -> Maybe a -> Maybe a
 
-filterMaybe p m = m >>= (\el -> if p el then Just el else Nothing)
+filterMaybe = mfilter 
 
 mkDial :: Int -> Maybe Dial
 
@@ -102,15 +103,17 @@ extractPointedNumber :: Dial -> Int
 extractPointedNumber (CurrentPointedNumber v) = v
 
 
-numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) rotations & snd
-  where updateZeroPointerCount (currDial, currCount) rotation  =
-          let newDial = rotateDial rotation currDial in
-            (newDial, if pointsToZero newDial then inc currCount else currCount)
+-- numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) rotations & snd
+--   where updateZeroPointerCount (currDial, currCount) rotation  =
+--           let newDial = rotateDial rotation currDial in
+--             (newDial, if pointsToZero newDial then inc currCount else currCount)
 
-        pointsToZero = (== 0) . extractPointedNumber
-        inc :: Num a => a -> a
+--         pointsToZero = (== 0) . extractPointedNumber
+--         inc :: Num a => a -> a
 
-        inc = (+ 1)
+--         inc = (+ 1)
+
+numOfTimesDialPointsAtZero rotations d = scanl (flip rotateDial) d rotations & drop 1 & filter ((== 0) . extractPointedNumber) & length
 
 {-
 Takes a rotation, a dial, and returns how many times the dial passed
