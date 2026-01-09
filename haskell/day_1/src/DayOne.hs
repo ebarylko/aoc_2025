@@ -102,17 +102,6 @@ extractPointedNumber :: Dial -> Int
 
 extractPointedNumber (CurrentPointedNumber v) = v
 
-
--- numOfTimesDialPointsAtZero rotations d = foldl' updateZeroPointerCount (d, 0) rotations & snd
---   where updateZeroPointerCount (currDial, currCount) rotation  =
---           let newDial = rotateDial rotation currDial in
---             (newDial, if pointsToZero newDial then inc currCount else currCount)
-
---         pointsToZero = (== 0) . extractPointedNumber
---         inc :: Num a => a -> a
-
---         inc = (+ 1)
-
 numOfTimesDialPointsAtZero rotations d = scanl (flip rotateDial) d rotations & drop 1 & filter ((== 0) . extractPointedNumber) & length
 
 {-
@@ -131,12 +120,14 @@ numOfTimesDialPassesZero rotation dial = numOfRotationsByHundredUnits + leftShif
   where
     pastDialPos = extractPointedNumber dial
     currDialPos = extractRotationShift rotation + pastDialPos
-    quotBy = flip quot
-    numOfRotationsByHundredUnits = (abs . quotBy 100) currDialPos
+    numOfRotationsByHundredUnits = abs (currDialPos `quot` 100)
     isNotPointingAtZero = (0 /=)
     leftShiftConsiderationFactor = if currDialPos <= 0 && isNotPointingAtZero pastDialPos then 1 else 0
 
 
+{-
+Assume that the input passed to read has the form Ld or Rd, where d is an integer
+-}
 instance Read DialRotation where
   readsPrec _ (direction : shift) = [(toDirection direction (read shift & rotationUnit & fromJust), "")]
     where toDirection d = case d of
@@ -151,5 +142,7 @@ is shifted such that it lands at zero or passes through it when applying the rot
 -}
 numOfTimesDialIsShiftedToAndPastZero :: [DialRotation] -> Dial -> Int
 
-numOfTimesDialIsShiftedToAndPastZero rotations dial = foldl' updateZeroShiftCount (dial, 0) rotations & snd
-  where updateZeroShiftCount (currDial, currCount) rotation = (rotateDial rotation currDial, numOfTimesDialPassesZero rotation currDial + currCount)
+-- numOfTimesDialIsShiftedToAndPastZero rotations dial = foldl' updateZeroShiftCount (dial, 0) rotations & snd
+--   where updateZeroShiftCount (currDial, currCount) rotation = (rotateDial rotation currDial, numOfTimesDialPassesZero rotation currDial + currCount)
+
+numOfTimesDialIsShiftedToAndPastZero rotations dial = rotations & scanl (flip rotateDial) dial & zipWith numOfTimesDialPassesZero rotations & sum
