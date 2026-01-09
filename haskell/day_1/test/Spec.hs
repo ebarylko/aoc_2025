@@ -15,7 +15,16 @@ main = hspec $ do
 
     describe "Applying a small series of rotations to a dial pointing to 50" $ do
       it "Points to zero three times in the entire process of applying the rotations" $ do
-        let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
+        let rotations = catMaybes [mkShift LeftShift 68,
+                                   mkShift LeftShift 30,
+                                   mkShift RightShift 48,
+                                   mkShift LeftShift 5,
+                                   mkShift RightShift 60,
+                                   mkShift LeftShift 55,
+                                   mkShift LeftShift 1,
+                                   mkShift LeftShift 99,
+                                   mkShift RightShift 14,
+                                   mkShift LeftShift 82]
 
         numOfTimesDialPointsAtZero rotations <$> mkDial 50 `shouldBe` Just 3
 
@@ -52,7 +61,16 @@ main = hspec $ do
 
     describe "Applying a small series of rotations to a dial pointing at fifty" $ do
       it "Passes by zero six times in the entire process of applying the rotations" $ do
-        let rotations = catMaybes [mkShift LeftShift 68, mkShift LeftShift 30, mkShift RightShift 48, mkShift LeftShift 5, mkShift RightShift 60, mkShift LeftShift 55, mkShift LeftShift 1, mkShift LeftShift 99, mkShift RightShift 14, mkShift LeftShift 82]
+        let rotations = catMaybes [mkShift LeftShift 68,
+                                   mkShift LeftShift 30,
+                                   mkShift RightShift 48,
+                                   mkShift LeftShift 5,
+                                   mkShift RightShift 60,
+                                   mkShift LeftShift 55,
+                                   mkShift LeftShift 1,
+                                   mkShift LeftShift 99,
+                                   mkShift RightShift 14,
+                                   mkShift LeftShift 82]
 
 
         numOfTimesDialIsShiftedToAndPastZero rotations <$> mkDial 50 `shouldBe` Just 6
