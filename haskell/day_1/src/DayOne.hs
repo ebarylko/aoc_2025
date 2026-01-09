@@ -85,11 +85,16 @@ in [0, 99]
 -}
 toCanonicalDialValue :: Int -> Int
 
-toCanonicalDialValue = modBy 100 . (modBy 100 . (+) 100)
+--toCanonicalDialValue = modBy 100 . (modBy 100 . (+) 100)
+
+toCanonicalDialValue = modBy 100 . (+) 100 . modBy 100
 
 
-
-rotateDial rotation (CurrentPointedNumber v) = CurrentPointedNumber currentVal where currentVal = rotation & extractRotationShift & (toCanonicalDialValue . (+ v))
+rotateDial rotation (CurrentPointedNumber v) = CurrentPointedNumber currentVal
+  where currentVal =
+          rotation
+          & extractRotationShift
+          & toCanonicalDialValue . (+ v)
 
 {-
 Takes a collection of rotations, a dial, and returns the number of times that
@@ -102,7 +107,11 @@ extractPointedNumber :: Dial -> Int
 
 extractPointedNumber (CurrentPointedNumber v) = v
 
-numOfTimesDialPointsAtZero rotations d = scanl (flip rotateDial) d rotations & drop 1 & filter ((== 0) . extractPointedNumber) & length
+numOfTimesDialPointsAtZero rotations d =
+  scanl (flip rotateDial) d rotations
+  & drop 1
+  & filter ((== 0) . extractPointedNumber)
+  & length
 
 {-
 Takes a rotation, a dial, and returns how many times the dial passed
@@ -142,7 +151,9 @@ is shifted such that it lands at zero or passes through it when applying the rot
 -}
 numOfTimesDialIsShiftedToAndPastZero :: [DialRotation] -> Dial -> Int
 
--- numOfTimesDialIsShiftedToAndPastZero rotations dial = foldl' updateZeroShiftCount (dial, 0) rotations & snd
---   where updateZeroShiftCount (currDial, currCount) rotation = (rotateDial rotation currDial, numOfTimesDialPassesZero rotation currDial + currCount)
 
-numOfTimesDialIsShiftedToAndPastZero rotations dial = rotations & scanl (flip rotateDial) dial & zipWith numOfTimesDialPassesZero rotations & sum
+numOfTimesDialIsShiftedToAndPastZero rotations dial =
+  rotations
+  & scanl (flip rotateDial) dial
+  & zipWith numOfTimesDialPassesZero rotations
+  & sum
