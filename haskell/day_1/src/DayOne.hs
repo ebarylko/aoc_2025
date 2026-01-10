@@ -1,10 +1,9 @@
 module DayOne(
   Dial(..),
   DialRotation(..),
-  mkDial,
+  NonNegative(..),
   rotateDial,
   rotationUnit,
-  mkShift,
   numOfTimesDialPointsAtZero,
   numOfTimesDialPassesZero,
   numOfTimesDialIsShiftedToAndPastZero
@@ -13,6 +12,7 @@ module DayOne(
 import Data.Function ((&))
 import Data.Maybe (fromJust)
 import Control.Monad (mfilter)
+import Data.List (elemIndex)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Ord, Show)
 
@@ -27,13 +27,19 @@ rotation in a direction if n is non-negative. Returns Nothing otherwise.
 
 rotationUnit :: Int -> Maybe NonNegative
 
-rotationUnit num = NonNegative <$> filterMaybe (>=0) (Just num)
+maybeFromPredicate :: (a -> Bool) -> a -> Maybe a
+
+maybeFromPredicate predicate = filterMaybe predicate . Just
+
+rotationUnit = fmap NonNegative . maybeFromPredicate (>=0)
+
+type DialRange = NonNegative
 
 {-
 This type represents a dial containing the
 numbers in [0, 99] in sequential order
 -}
-newtype Dial = CurrentPointedNumber Int deriving (Show, Eq)
+newtype Dial = Dial DialRange deriving (Show, Eq)
 
 {-
 This type represents how much a dial is to be rotated by and
@@ -48,17 +54,10 @@ direction by the passed amount if the amount is non-negative. Returns
 Nothing otherwise.
 -}
 
-mkShift :: (NonNegative -> DialRotation) -> Int -> Maybe DialRotation
-
-mkShift direction shift = direction <$> rotationUnit shift
 
 filterMaybe :: (a -> Bool) -> Maybe a -> Maybe a
 
-filterMaybe = mfilter 
-
-mkDial :: Int -> Maybe Dial
-
-mkDial = fmap CurrentPointedNumber . filterMaybe (`elem` [0 .. 99]) . Just
+filterMaybe = mfilter
 
 {-
 Takes a rotation to apply to a dial, a dial, and returns
@@ -85,49 +84,48 @@ in [0, 99]
 -}
 toCanonicalDialValue :: Int -> Int
 
---toCanonicalDialValue = modBy 100 . (modBy 100 . (+) 100)
-
 toCanonicalDialValue = modBy 100 . (+) 100 . modBy 100
 
 
-rotateDial rotation (CurrentPointedNumber v) = CurrentPointedNumber currentVal
+rotateDial rotation (Dial v) = Dial currentVal
   where currentVal =
           rotation
           & extractRotationShift
-          & toCanonicalDialValue . (+ v)
+          & toCanonicalDialValue . (+ val v)
+          & NonNegative
+
 
 {-
 Takes a collection of rotations, a dial, and returns the number of times that
 the dial points at zero after applying a rotation
 -}
-numOfTimesDialPointsAtZero :: [DialRotation] -> Dial -> Int
+numOfTimesDialPointsAtZero :: [DialRotation] -> Dial -> NonNegative
 
 
-extractPointedNumber :: Dial -> Int
+extractPointedNumber :: Dial -> NonNegative
 
-extractPointedNumber (CurrentPointedNumber v) = v
+extractPointedNumber (Dial v) = v
+
+zero = NonNegative 0
+
+dialInZero = Dial zero
 
 numOfTimesDialPointsAtZero rotations d =
   scanl (flip rotateDial) d rotations
   & drop 1
-  & filter ((== 0) . extractPointedNumber)
+  & filter (== dialInZero)
   & length
+  & NonNegative
 
 {-
 Takes a rotation, a dial, and returns how many times the dial passed
 through zero during the application of the rotation
 -}
-numOfTimesDialPassesZero :: DialRotation -> Dial -> Int
+numOfTimesDialPassesZero :: DialRotation -> Dial -> NonNegative
 
--- {-
--- Takes a predicate, a number, and increments the number if it
--- satisfies the predicate. Returns the same number otherwise
--- -}
--- incIf :: Num a => (a -> bool) -> a -> a
-
-numOfTimesDialPassesZero rotation dial = numOfRotationsByHundredUnits + leftShiftConsiderationFactor
+numOfTimesDialPassesZero rotation dial = NonNegative $ numOfRotationsByHundredUnits + leftShiftConsiderationFactor
   where
-    pastDialPos = extractPointedNumber dial
+    pastDialPos = (val . extractPointedNumber) dial
     currDialPos = extractRotationShift rotation + pastDialPos
     numOfRotationsByHundredUnits = abs (currDialPos `quot` 100)
     isNotPointingAtZero = (0 /=)
@@ -149,11 +147,13 @@ instance Read DialRotation where
 Takes a collection of rotations, a dial, and returns the number of times the dial
 is shifted such that it lands at zero or passes through it when applying the rotations
 -}
-numOfTimesDialIsShiftedToAndPastZero :: [DialRotation] -> Dial -> Int
+numOfTimesDialIsShiftedToAndPastZero :: [DialRotation] -> Dial -> NonNegative
 
 
 numOfTimesDialIsShiftedToAndPastZero rotations dial =
   rotations
   & scanl (flip rotateDial) dial
   & zipWith numOfTimesDialPassesZero rotations
-  & sum
+  & foldl addNonNegative zero
+  where
+    addNonNegative (NonNegative a) (NonNegative b) = NonNegative (a + b)
