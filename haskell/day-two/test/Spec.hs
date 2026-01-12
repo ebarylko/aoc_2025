@@ -1,5 +1,5 @@
 import Test.Hspec
-import DayTwo(NonNegative(..), CategorizedId(..), categorizeId)
+import DayTwo(NonNegative(..), ProductId(..), categorizeId)
 
 main :: IO ()
 main = hspec $ do
@@ -7,4 +7,4 @@ main = hspec $ do
     describe "Identifying a valid id" $ do
       describe "Given a number with an odd number of digits" $ do
         it "Identifies it as a valid id" $ do
-          categorizeId (NonNegative 3) `shouldBe` ValidId 
+          categorizeId (NonNegative 3) `shouldBe` ValidId
