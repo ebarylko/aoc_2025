@@ -4,8 +4,6 @@ module DayTwo
 
 import Data.Char (digitToInt)
 import Data.Function ((&))
-import Data.Maybe (maybe)
-import Control.Applicative (liftA2)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
@@ -28,12 +26,22 @@ as invalid or valid according to the rules above otherwise.
 -}
 categorizeId :: UnverifiedProductId -> ProductId
 
---categorizeId _ = InValidId $ NonNegative 0
+categorizeId a = a
+  & maybeFromPred isValidId
+  & maybe (InValidId a) (const ValidId)
+  where isValidId = liftA2 (||) hasEvenNumberOfDigits isNotRepeatedSequence
+        hasEvenNumberOfDigits = (== 0) . flip mod 2 . length . extractDigits
 
 maybeFromPred :: (a -> Bool) -> a -> Maybe a
 
 maybeFromPred predicate a = if predicate a then Just a else Nothing
 
+{-
+Takes a non-negative number which is assumed to be even and
+returns true if the number does not consist of a repeated
+number. For example, with 54 and 1013 as input, the function
+returns false. With 5454 and 1010, the function returns false.
+-}
 isNotRepeatedSequence :: NonNegative -> Bool
 
 isNotRepeatedSequence num = firstHalf /= secondHalf
@@ -43,11 +51,6 @@ isNotRepeatedSequence num = firstHalf /= secondHalf
     ( firstHalf, secondHalf ) = splitAt halfwayPoint digits
 
 
-categorizeId a = a
-  & maybeFromPred isValidId
-  & maybe (InValidId a) (const ValidId)
-  where isValidId = liftA2 (||) hasEvenNumberOfDigits isNotRepeatedSequence
-        hasEvenNumberOfDigits = (== 0) . flip mod 2 . length . extractDigits
 
 {-
 Takes a non-negative number and returns a collection of the
