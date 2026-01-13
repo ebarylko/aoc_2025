@@ -1,9 +1,10 @@
 module DayTwo
-    (NonNegative(..), ProductId(..), categorizeId
+    (NonNegative(..), ProductId(..), categorizeId, ValidId(..), InValidId(..)
     ) where
 
 import Data.Char (digitToInt)
 import Data.Function ((&))
+import Control.Applicative (liftA2)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
@@ -18,7 +19,18 @@ This data type represents the two different types of product ids in the gift sho
 database, being valid if the id does not consist of a repetition of digits.
 It is invalid otherwise.
 -}
-data ProductId = ValidId | InValidId NonNegative deriving (Eq, Show)
+type ProductId = Either InValidId ValidId 
+
+data ValidId = ValidId deriving  (Eq, Show)
+
+newtype InValidId = InValidId NonNegative deriving (Eq, Show)
+
+eitherFromPred :: (a -> Bool) -> (a -> b) -> (a -> c) -> a -> Either b c
+
+eitherFromPred predicate leftFn rightFn x =
+  if predicate x
+  then (Left . leftFn) x
+  else (Right . rightFn) x
 
 {-
 Takes a product id that may be valid or invalid, and labels it
@@ -26,15 +38,9 @@ as invalid or valid according to the rules above otherwise.
 -}
 categorizeId :: UnverifiedProductId -> ProductId
 
-categorizeId a = a
-  & maybeFromPred isValidId
-  & maybe (InValidId a) (const ValidId)
+categorizeId  = eitherFromPred isValidId InValidId (const ValidId)
   where isValidId = liftA2 (||) hasEvenNumberOfDigits isNotRepeatedSequence
         hasEvenNumberOfDigits = (== 0) . flip mod 2 . length . extractDigits
-
-maybeFromPred :: (a -> Bool) -> a -> Maybe a
-
-maybeFromPred predicate a = if predicate a then Just a else Nothing
 
 {-
 Takes a non-negative number which is assumed to be even and
