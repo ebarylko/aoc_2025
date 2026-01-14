@@ -3,6 +3,7 @@ module DayTwo
     ) where
 
 import Data.Char (digitToInt)
+import Data.Either (lefts)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
@@ -71,9 +72,9 @@ type IdRange = [UnverifiedProductId]
 Given a collection of unverified ids, returns all the invalid
 ids
 -}
-filterInvalidIds :: IdRange -> [ProductIdVerfificationResult]
+filterInvalidIds :: IdRange -> [InvalidId]
 
-filterInvalidIds _ = []
+filterInvalidIds = lefts . map verifyId
 
 
 

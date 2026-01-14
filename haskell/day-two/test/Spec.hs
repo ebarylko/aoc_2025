@@ -32,6 +32,10 @@ main = hspec $ do
     describe "Identifying all invalid ids in a collection of ids" $ do
       describe "Given the ids in the range [11, 22]" $ do
         it "Only 11 and 22 are found to be invalid" $ do
-          let expected = [mkInvalidId (unverifiedId 11), mkInvalidId (unverifiedId 22)]
+          let expected = map (InvalidId . unverifiedId) [11, 22]
 
           filterInvalidIds (map unverifiedId [11 .. 22]) `shouldBe` expected
+
+      describe "Given the ids in the range [565653,565659]" $ do
+        it "No ids are found to be invalid" $ do
+          filterInvalidIds (map unverifiedId [565653 .. 565659]) `shouldBe` []
