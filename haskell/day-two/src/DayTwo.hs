@@ -1,10 +1,8 @@
 module DayTwo
-    (NonNegative(..), ProductId(..), categorizeId, ValidId(..), InValidId(..)
+    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..)
     ) where
 
 import Data.Char (digitToInt)
-import Data.Function ((&))
-import Control.Applicative (liftA2)
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
@@ -14,33 +12,34 @@ valid or invalid
 -}
 type UnverifiedProductId = NonNegative
 
-{-
-This data type represents the two different types of product ids in the gift shop
-database, being valid if the id does not consist of a repetition of digits.
-It is invalid otherwise.
--}
-type ProductId = Either InValidId ValidId 
 
 data ValidId = ValidId deriving  (Eq, Show)
 
-newtype InValidId = InValidId NonNegative deriving (Eq, Show)
+newtype InvalidId = InvalidId NonNegative deriving (Eq, Show)
 
 eitherFromPred :: (a -> Bool) -> (a -> b) -> (a -> c) -> a -> Either b c
 
 eitherFromPred predicate leftFn rightFn x =
   if predicate x
-  then (Left . leftFn) x
-  else (Right . rightFn) x
+  then (Right . rightFn) x
+  else (Left . leftFn) x
+
+{-
+This data type represents the two different types of product ids in the gift shop
+database, being valid if the id does not consist of a repetition of digits.
+It is invalid otherwise.
+-}
+type ProductIdVerfificationResult = Either InvalidId ValidId
 
 {-
 Takes a product id that may be valid or invalid, and labels it
 as invalid or valid according to the rules above otherwise.
 -}
-categorizeId :: UnverifiedProductId -> ProductId
+verifyId :: UnverifiedProductId -> ProductIdVerfificationResult
 
-categorizeId  = eitherFromPred isValidId InValidId (const ValidId)
-  where isValidId = liftA2 (||) hasEvenNumberOfDigits isNotRepeatedSequence
-        hasEvenNumberOfDigits = (== 0) . flip mod 2 . length . extractDigits
+verifyId  = eitherFromPred isValidId InvalidId (const ValidId)
+  where isValidId = liftA2 (||) hasOddNumberOfDigits isNotRepeatedSequence
+        hasOddNumberOfDigits = (== 1) . flip mod 2 . length . extractDigits
 
 {-
 Takes a non-negative number which is assumed to be even and
