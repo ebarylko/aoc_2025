@@ -4,6 +4,7 @@ module DayTwo
 
 import Data.Char (digitToInt)
 import Data.Either (lefts)
+import Data.Function ((&))
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
@@ -83,9 +84,30 @@ sum.
 -}
 calcInvalidIdsSum  :: [IdRange] -> NonNegative
 
---calcInvalidIdsSum ids = 
+getId :: InvalidId -> NonNegative
+
+getId (InvalidId a) = a
+
+calcInvalidIdsSum ranges =  ranges >>= filterInvalidIds & foldr sumIds (InvalidId zero) & getId
+  where
+    sumIds :: InvalidId -> InvalidId -> InvalidId
+    sumIds (InvalidId a) (InvalidId b) = InvalidId (a + b)
+    zero = NonNegative 0
 
 
-calcInvalidIdsSum _ = NonNegative 0
+instance Num NonNegative where
+  (+) (NonNegative a) (NonNegative b) = NonNegative $ a + b
+  (*) (NonNegative a) (NonNegative b) = NonNegative $ a * b
+  (-) (NonNegative a) (NonNegative b)
+    | a < b = error "Subtraction of two non-negative numbers produces a negative number"
+    | otherwise = NonNegative (a - b)
 
+  abs = id
 
+  signum (NonNegative a)
+    | a == 0 = 0
+    | otherwise = 1
+
+  fromInteger a
+    | a < 0 = error "Cannot convert negative integer into non-negative integer"
+    | otherwise = NonNegative $ fromIntegral a
