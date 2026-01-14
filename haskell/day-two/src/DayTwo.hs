@@ -1,5 +1,5 @@
 module DayTwo
-    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..)
+    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..), UnverifiedProductId, filterInvalidIds
     ) where
 
 import Data.Char (digitToInt)
@@ -15,7 +15,7 @@ type UnverifiedProductId = NonNegative
 
 data ValidId = ValidId deriving  (Eq, Show)
 
-newtype InvalidId = InvalidId NonNegative deriving (Eq, Show)
+newtype InvalidId = InvalidId UnverifiedProductId deriving (Eq, Show)
 
 eitherFromPred :: (a -> Bool) -> (a -> b) -> (a -> c) -> a -> Either b c
 
@@ -64,3 +64,17 @@ digits of the number
 extractDigits :: NonNegative -> [NonNegative]
 
 extractDigits num = map (NonNegative . digitToInt) $ (show . val) num
+
+type IdRange = [UnverifiedProductId]
+
+{-
+Given a collection of unverified ids, returns all the invalid
+ids
+-}
+filterInvalidIds :: IdRange -> [ProductIdVerfificationResult]
+
+filterInvalidIds _ = []
+
+
+
+
