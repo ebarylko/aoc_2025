@@ -1,5 +1,5 @@
 import Test.Hspec
-import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds)
+import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum)
 
 {--
 Takes a number and generates an id that may be valid/invalid
@@ -11,6 +11,11 @@ unverifiedId = NonNegative
 mkInvalidId :: UnverifiedProductId -> ProductIdVerfificationResult
 
 mkInvalidId = Left . InvalidId
+
+mkIdRange :: [Int] -> [UnverifiedProductId]
+
+mkIdRange = map unverifiedId
+
 
 main :: IO ()
 main = hspec $ do
@@ -39,3 +44,15 @@ main = hspec $ do
       describe "Given the ids in the range [565653,565659]" $ do
         it "No ids are found to be invalid" $ do
           filterInvalidIds (map unverifiedId [565653 .. 565659]) `shouldBe` []
+  describe "Summing all invalid ids over a collection of id ranges" $ do
+    it "Returns 1227775554 " $ do
+      let ranges = map mkIdRange [[11 .. 22],
+                                  [95 .. 115],
+                                  [998 .. 1012],
+                                  [1188511880 .. 1188511890],
+                                  [222220 .. 222224],
+                                  [1698522 .. 1698528],
+                                  [446443 .. 446449],
+                                  [38593856 .. 38593862]]
+
+      calcInvalidIdsSum ranges `shouldBe` NonNegative 1227775554

@@ -1,5 +1,5 @@
 module DayTwo
-    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..), UnverifiedProductId, filterInvalidIds
+    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..), UnverifiedProductId, filterInvalidIds, calcInvalidIdsSum
     ) where
 
 import Data.Char (digitToInt)
@@ -76,6 +76,16 @@ filterInvalidIds :: IdRange -> [InvalidId]
 
 filterInvalidIds = lefts . map verifyId
 
+{--
+Given a collection of product id ranges, filters
+out the invalid ids in each range and returns their
+sum.
+-}
+calcInvalidIdsSum  :: [IdRange] -> NonNegative
 
+--calcInvalidIdsSum ids = 
+
+
+calcInvalidIdsSum _ = NonNegative 0
 
 
