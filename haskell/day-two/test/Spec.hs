@@ -1,5 +1,5 @@
 import Test.Hspec
-import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum, verifyId' )
+import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum, verifyId', calcInvalidIdsSum')
 import Data.List.Split (splitOn)
 import Data.Function ((&))
 
@@ -76,6 +76,28 @@ main = hspec $ do
   describe "Categorizing ids under the new criteria" $ do
     describe "Identifying a valid id" $ do
       describe "Given a number with an odd number of digits" $ do
-        describe "The number is not one or more repetitions of another number " $ do
+        describe "The number does not consist of one or more repetitions of another number " $ do
           it "Identifies it as a valid id" $ do
             verifyId' (unverifiedId 338) `shouldBe` Right ValidId
+            verifyId' (unverifiedId 1) `shouldBe` Right ValidId
+        describe "The number consists of one or more repetitions of another number " $ do
+          it "Identifies it as an invalid id" $ do
+            verifyId' (unverifiedId 111) `shouldBe` (mkInvalidId . unverifiedId) 111
+            verifyId' (unverifiedId 1188511885) `shouldBe` (mkInvalidId . unverifiedId) 1188511885
+            verifyId' (unverifiedId 565656) `shouldBe` (mkInvalidId . unverifiedId) 565656
+
+      describe "Summing all invalid ids over a collection of id ranges" $ do
+        it "Returns 4174379265" $ do
+          let ranges = map mkIdRange [[11 .. 22],
+                                      [95 .. 115],
+                                      [998 .. 1012],
+                                      [1188511880 .. 1188511890],
+                                      [222220 .. 222224],
+                                      [1698522 .. 1698528],
+                                      [446443 .. 446449],
+                                      [565653 .. 565659],
+                                      [824824821 .. 824824827],
+                                      [2121212118 .. 2121212124],
+                                      [38593856 .. 38593862]]
+
+          calcInvalidIdsSum' ranges `shouldBe` NonNegative 4174379265

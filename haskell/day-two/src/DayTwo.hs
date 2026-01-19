@@ -71,12 +71,29 @@ extractDigits num = map (NonNegative . digitToInt) $ (show . val) num
 
 type IdRange = [UnverifiedProductId]
 
+
+
+getId :: InvalidId -> NonNegative
+
+getId (InvalidId a) = a
+
+
+addIds :: InvalidId -> InvalidId -> InvalidId
+addIds (InvalidId a) (InvalidId b) = InvalidId (a + b)
+
+sumIds :: [InvalidId] -> InvalidId
+
+sumIds = foldr addIds zero
+  where zero = InvalidId $ NonNegative 0
+
+calcInvalidIdsSumBy :: (IdRange -> [InvalidId]) -> [IdRange] -> NonNegative
+
+calcInvalidIdsSumBy filterFn = getId . sumIds . (>>= filterFn)
+
 {-
-Given a collection of unverified ids, returns all the invalid
-ids
+Given a collection of unverified ids, returns all the invalid ids
 -}
 filterInvalidIds :: IdRange -> [InvalidId]
-
 filterInvalidIds = lefts . map verifyId
 
 {--
@@ -86,15 +103,32 @@ sum.
 -}
 calcInvalidIdsSum  :: [IdRange] -> NonNegative
 
-getId :: InvalidId -> NonNegative
+calcInvalidIdsSum = calcInvalidIdsSumBy filterInvalidIds
 
-getId (InvalidId a) = a
+{--
+Given a collection of product id ranges, filters
+out the invalid ids in each range according to part
+two and returns their sum.
+-}
+calcInvalidIdsSum' :: [IdRange] -> NonNegative
 
-calcInvalidIdsSum ranges =  ranges >>= filterInvalidIds & foldr sumIds (InvalidId zero) & getId
+calcInvalidIdsSum' = calcInvalidIdsSumBy filterIdsThatRepeat
   where
-    sumIds :: InvalidId -> InvalidId -> InvalidId
-    sumIds (InvalidId a) (InvalidId b) = InvalidId (a + b)
-    zero = NonNegative 0
+    filterIdsThatRepeat :: IdRange -> [InvalidId]
+    filterIdsThatRepeat = lefts . map verifyId'
+
+{-
+Takes an unverified id and classifies it as invalid if it represents one or
+more repetitions of a natural number. Classifies it as valid otherwise.
+-}
+verifyId' :: UnverifiedProductId -> ProductIdVerfificationResult
+
+verifyId' = eitherFromPred (not . isRepetition) InvalidId (const ValidId)
+  where
+    isRepetition num =
+          let fullId = (show . val) num in
+            let shiftedId = (drop 1 . init) $ fullId ++ fullId in
+              fullId `isInfixOf` shiftedId
 
 
 instance Num NonNegative where
@@ -113,26 +147,3 @@ instance Num NonNegative where
   fromInteger a
     | a < 0 = error "Cannot convert negative integer into non-negative integer"
     | otherwise = NonNegative $ fromIntegral a
-
-{--
-Given a collection of product id ranges, filters
-out the invalid ids in each range according to part
-two and returns their sum.
--}
-calcInvalidIdsSum' :: [IdRange] -> NonNegative
-
-calcInvalidIdsSum' _ = NonNegative 0
-
-{-
-Takes an unverified id and classifies it as invalid if it represents one or
-more repetitions of a natural number. Classifies it as valid otherwise.
--}
-verifyId' :: UnverifiedProductId -> ProductIdVerfificationResult
-
-verifyId' = eitherFromPred (not . isRepetition) InvalidId (const ValidId)
-  where
-    isRepetition num =
-          let fullId = (show . val) num in
-            let shiftedId = (drop 1 . init) $ fullId ++ fullId in
-              fullId `isInfixOf` shiftedId
-
