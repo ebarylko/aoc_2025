@@ -1,10 +1,11 @@
 module DayTwo
-    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..), UnverifiedProductId, filterInvalidIds, calcInvalidIdsSum
+    (NonNegative(..), ProductIdVerfificationResult, verifyId, ValidId(..), InvalidId(..), UnverifiedProductId, filterInvalidIds, calcInvalidIdsSum, calcInvalidIdsSum', verifyId'
     ) where
 
 import Data.Char (digitToInt)
 import Data.Either (lefts)
 import Data.Function ((&))
+import Data.List (isInfixOf)
 
 
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
@@ -113,4 +114,25 @@ instance Num NonNegative where
     | a < 0 = error "Cannot convert negative integer into non-negative integer"
     | otherwise = NonNegative $ fromIntegral a
 
+{--
+Given a collection of product id ranges, filters
+out the invalid ids in each range according to part
+two and returns their sum.
+-}
+calcInvalidIdsSum' :: [IdRange] -> NonNegative
+
+calcInvalidIdsSum' _ = NonNegative 0
+
+{-
+Takes an unverified id and classifies it as invalid if it represents one or
+more repetitions of a natural number. Classifies it as valid otherwise.
+-}
+verifyId' :: UnverifiedProductId -> ProductIdVerfificationResult
+
+verifyId' = eitherFromPred (not . isRepetition) InvalidId (const ValidId)
+  where
+    isRepetition num =
+          let fullId = (show . val) num in
+            let shiftedId = (drop 1 . init) $ fullId ++ fullId in
+              fullId `isInfixOf` shiftedId
 

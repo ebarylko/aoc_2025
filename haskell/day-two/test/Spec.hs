@@ -1,6 +1,7 @@
 import Test.Hspec
-import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum)
+import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum, verifyId' )
 import Data.List.Split (splitOn)
+import Data.Function ((&))
 
 {--
 Takes a number and generates an id that may be valid/invalid
@@ -24,11 +25,11 @@ Returns the range of all unverified ids between a and b.
 parseInput :: String -> [UnverifiedProductId]
 
 parseInput = map NonNegative . toNumRange
-  where toNumRange a = a & splitOn "-" & (\(x:y:zs) -> [x .. y])
+  where toNumRange a = a & splitOn "-" & (\(x:y:_) -> [read x .. read y])
 
 main :: IO ()
 main = hspec $ do
-  describe "Categorizing ids" $ do
+  describe "Categorizing ids under the original criteria" $ do
     describe "Identifying a valid id" $ do
       describe "Given a number with an odd number of digits" $ do
         it "Identifies it as a valid id" $ do
@@ -67,15 +68,14 @@ main = hspec $ do
       calcInvalidIdsSum ranges `shouldBe` NonNegative 1227775554
 
   describe "Summing all invalid ids over the input id ranges" $ do
-    it "Returns 3 " $ do
-      let ranges = readFile "data/data.txt" & fmap 
-      let ranges = map mkIdRange [[11 .. 22],
-                                  [95 .. 115],
-                                  [998 .. 1012],
-                                  [1188511880 .. 1188511890],
-                                  [222220 .. 222224],
-                                  [1698522 .. 1698528],
-                                  [446443 .. 446449],
-                                  [38593856 .. 38593862]]
+    it "Returns 29940924880 " $ do
+      let ranges = readFile "data/data.txt" &  fmap  (map parseInput . splitOn ",")
 
-      calcInvalidIdsSum ranges `shouldBe` NonNegative 1227775554
+      calcInvalidIdsSum <$> ranges `shouldReturn` NonNegative 29940924880
+
+  describe "Categorizing ids under the new criteria" $ do
+    describe "Identifying a valid id" $ do
+      describe "Given a number with an odd number of digits" $ do
+        describe "The number is not one or more repetitions of another number " $ do
+          it "Identifies it as a valid id" $ do
+            verifyId' (unverifiedId 338) `shouldBe` Right ValidId
