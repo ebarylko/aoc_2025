@@ -1,5 +1,6 @@
 import Test.Hspec
 import DayTwo(UnverifiedProductId, ProductIdVerfificationResult, NonNegative(..), verifyId, ValidId(..), InvalidId(..), filterInvalidIds, calcInvalidIdsSum)
+import Data.List.Split (splitOn)
 
 {--
 Takes a number and generates an id that may be valid/invalid
@@ -16,6 +17,14 @@ mkIdRange :: [Int] -> [UnverifiedProductId]
 
 mkIdRange = map unverifiedId
 
+{-
+Takes a string of the form 'a-b', where a and b are both natural numbers, and b > a.
+Returns the range of all unverified ids between a and b.
+-}
+parseInput :: String -> [UnverifiedProductId]
+
+parseInput = map NonNegative . toNumRange
+  where toNumRange a = a & splitOn "-" & (\(x:y:zs) -> [x .. y])
 
 main :: IO ()
 main = hspec $ do
@@ -46,6 +55,20 @@ main = hspec $ do
           filterInvalidIds (map unverifiedId [565653 .. 565659]) `shouldBe` []
   describe "Summing all invalid ids over a collection of id ranges" $ do
     it "Returns 1227775554 " $ do
+      let ranges = map mkIdRange [[11 .. 22],
+                                  [95 .. 115],
+                                  [998 .. 1012],
+                                  [1188511880 .. 1188511890],
+                                  [222220 .. 222224],
+                                  [1698522 .. 1698528],
+                                  [446443 .. 446449],
+                                  [38593856 .. 38593862]]
+
+      calcInvalidIdsSum ranges `shouldBe` NonNegative 1227775554
+
+  describe "Summing all invalid ids over the input id ranges" $ do
+    it "Returns 3 " $ do
+      let ranges = readFile "data/data.txt" & fmap 
       let ranges = map mkIdRange [[11 .. 22],
                                   [95 .. 115],
                                   [998 .. 1012],

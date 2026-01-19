@@ -48,3 +48,5 @@ tests:
     dependencies:
     - day-two
     - hspec
+    - split
+

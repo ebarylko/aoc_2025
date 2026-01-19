@@ -6,6 +6,7 @@ import Data.Char (digitToInt)
 import Data.Either (lefts)
 import Data.Function ((&))
 
+
 newtype NonNegative = NonNegative { val:: Int } deriving (Eq, Show)
 
 {-
@@ -111,3 +112,5 @@ instance Num NonNegative where
   fromInteger a
     | a < 0 = error "Cannot convert negative integer into non-negative integer"
     | otherwise = NonNegative $ fromIntegral a
+
+
