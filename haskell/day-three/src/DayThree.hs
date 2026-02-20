@@ -1,7 +1,13 @@
 module DayThree
-    (mkBattery,
-     findMstPotentBattery
+    (findMstPotentBattery,
+     Battery(..),
+     Joltage(..)
     ) where
+
+import Control.Arrow ((>>>))
+import Data.Function (on)
+import Data.List (sortBy)
+import Data.Ord (Down(..))
 
 -- Represents a value in [1, 9]
 newtype Joltage = Joltage  Int deriving (Eq, Show, Ord)
@@ -12,12 +18,22 @@ newtype Battery = Battery Joltage deriving (Eq, Show, Ord)
 type Bank = [Battery]
 
 
--- Takes a number n in [1, 9] and creates a battery with a joltage of n
-mkBattery :: Int -> Battery
 
-mkBattery = Battery . Joltage
 
+ -- Takes a collection of batteries and returns the
+ -- position and the battery of the one with the highest joltage.
 
 findMstPotentBattery :: Bank -> (Int, Battery)
 
-findMstPotentBattery _ = (0, mkBattery 0)
+getJoltage :: Battery -> Joltage
+
+getJoltage (Battery v) = v
+
+findMstPotentBattery = enumerate >>> sortBy (compare `on` joltageDecreasing) >>> head
+  where
+    joltage = getJoltage . snd
+    joltageDecreasing = Down .joltage
+    enumerate = zip [0 ..]
+
+
+

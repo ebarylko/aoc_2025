@@ -1,6 +1,11 @@
 import Test.Hspec
 
-import DayThree (mkBattery, findMstPotentBattery)
+import DayThree (findMstPotentBattery, Battery(..), Joltage(..))
+
+-- Takes a number n in [1, 9] and creates a battery with a joltage of n
+mkBattery :: Int -> Battery
+
+mkBattery = Battery . Joltage
 
 main :: IO ()
 main = hspec $ do
