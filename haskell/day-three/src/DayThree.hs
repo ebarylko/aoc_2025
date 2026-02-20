@@ -2,7 +2,8 @@ module DayThree
     (findMstPotentBattery,
      Battery(..),
      Joltage(..),
-     calcBestJoltage
+     calcBestJoltage,
+     Bank
     ) where
 
 import Control.Arrow ((>>>))

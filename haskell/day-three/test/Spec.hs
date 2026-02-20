@@ -1,11 +1,23 @@
 import Test.Hspec
 
-import DayThree (findMstPotentBattery, Battery(..), Joltage(..), calcBestJoltage)
+import DayThree (findMstPotentBattery, Battery(..), Joltage(..), calcBestJoltage, Bank)
+import Data.Function ((&))
+import Data.Char (digitToInt)
+import Control.Arrow ((>>>))
 
 -- Takes a number n in [1, 9] and creates a battery with a joltage of n
 mkBattery :: Int -> Battery
 
 mkBattery = Battery . Joltage
+
+mkBank :: String -> Bank
+
+mkBank = map (mkBattery . digitToInt)
+
+addJoltages :: Joltage -> Joltage -> Joltage
+
+addJoltages (Joltage a) (Joltage b) = Joltage $ a + b
+sumJoltages = foldr addJoltages (Joltage 0)
 
 main :: IO ()
 main = hspec $ do
@@ -23,4 +35,8 @@ main = hspec $ do
       calcBestJoltage (map mkBattery [9, 8, 7]) `shouldBe` Joltage 98
       calcBestJoltage (map mkBattery [1, 2, 9]) `shouldBe` Joltage 29
       calcBestJoltage (map mkBattery [8, 1, 9]) `shouldBe` Joltage 89
+
+  describe "Finding the sum of the best combined joltages over a large collection of bank" $ do
+    it "Returns x" $ do
+      (readFile "data/data.txt" & fmap (sumJoltages . map (calcBestJoltage . mkBank) . lines )) `shouldReturn` Joltage 17493
 
