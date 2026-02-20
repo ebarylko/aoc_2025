@@ -1,7 +1,8 @@
 module DayThree
     (findMstPotentBattery,
      Battery(..),
-     Joltage(..)
+     Joltage(..),
+     calcBestJoltage
     ) where
 
 import Control.Arrow ((>>>))
@@ -37,3 +38,9 @@ findMstPotentBattery = enumerate >>> sortBy (compare `on` joltageDecreasing) >>>
 
 
 
+calcBestJoltage :: Bank -> Joltage
+calcBestJoltage coll = on combineJoltages getJoltage fstBattery sndBattery
+  where
+    (pos, fstBattery) = findMstPotentBattery $ init coll
+    (_, sndBattery) = findMstPotentBattery $ drop (pos + 1) coll
+    combineJoltages (Joltage a) (Joltage b) = Joltage $ a * 10 + b

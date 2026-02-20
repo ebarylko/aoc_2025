@@ -1,6 +1,6 @@
 import Test.Hspec
 
-import DayThree (findMstPotentBattery, Battery(..), Joltage(..))
+import DayThree (findMstPotentBattery, Battery(..), Joltage(..), calcBestJoltage)
 
 -- Takes a number n in [1, 9] and creates a battery with a joltage of n
 mkBattery :: Int -> Battery
@@ -19,4 +19,8 @@ main = hspec $ do
 
 
   describe "Finding the most potent pair of batteries in a bank" $ do
-    it "Returns the combined jolts produced by the batteries "
+    it "Returns the largest possible combined joltage" $ do
+      calcBestJoltage (map mkBattery [9, 8, 7]) `shouldBe` Joltage 98
+      calcBestJoltage (map mkBattery [1, 2, 9]) `shouldBe` Joltage 29
+      calcBestJoltage (map mkBattery [8, 1, 9]) `shouldBe` Joltage 89
+
